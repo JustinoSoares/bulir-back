@@ -1,11 +1,11 @@
-import { IsString, IsEmail, IsEnum, IsNumber, Min, IsOptional } from 'class-validator';
+import { IsString, IsEmail, MinLength, IsOptional } from 'class-validator';
 import { user_type } from '@prisma/client';
 
 export class UpdateUserDto {
     @IsString({
         message: 'O nome completo deve ser uma string.',
     })
-    @Min(3, {
+    @MinLength(3, {
         message: 'O nome completo deve ter pelo menos 3 caracteres.',
     })
     @IsOptional()
@@ -20,7 +20,7 @@ export class UpdateUserDto {
     @IsString({
         message: 'O NIF deve ser uma string.',
     })
-    @Min(10, {
+    @MinLength(10, {
         message: 'O NIF deve ter pelo menos 10 caracteres.',
     })
     @IsOptional()

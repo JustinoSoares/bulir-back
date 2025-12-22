@@ -1,14 +1,16 @@
-FROM node:24-alpine
+FROM node:20-alpine
 
-WORKDIR /
+WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json yarn.lock ./
 
 RUN yarn install
-RUN yarn prisma generate
 
 COPY . .
 
+
+RUN yarn prisma generate
+
 EXPOSE 3000
 
-CMD ["yarn", "run", "start:dev"]
+CMD ["yarn", "start"]
