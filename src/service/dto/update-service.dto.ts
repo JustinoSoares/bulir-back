@@ -1,7 +1,7 @@
 import { IsString, IsNumber, IsOptional } from "class-validator";
 
 
-export class CreateServiceDto {
+export class UpdateServiceDto {
     @IsString({
         message: 'O nome do serviço deve ser uma string.',
     })

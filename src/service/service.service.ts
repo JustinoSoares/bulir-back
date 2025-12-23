@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { validate } from 'uuid';
+import { UpdateServiceDto } from './dto/update-service.dto';
 
 @Injectable()
 export class ServiceService {
@@ -16,7 +17,20 @@ export class ServiceService {
         if (userExist.user_type !== 'servicer') {
             throw new UnauthorizedException('Este Usuário não é um prestador de serviços.');
         }
-        return this.prisma.service.create({ data: { ...data, userId } });
+        const existService = await this.prisma.service.findFirst({ 
+            where: { name: data.name, userId: userId } 
+        });
+        if (existService) {
+            throw new BadRequestException('Você já possui um serviço com este nome.');
+        }
+
+        const service = await this.prisma.service.create({ 
+            data: { 
+                ...data,
+                userId: userId
+            } 
+        });
+        return service;
     }
 
     // Obtém todos os serviços com paginação e filtro por nome
@@ -38,7 +52,12 @@ export class ServiceService {
 
     // Obtém um serviço específico pelo ID
     async getServiceEach(serviceId: string) {
-        const service = await this.prisma.service.findUnique({ where: { id: serviceId } });
+        if (!validate(serviceId)) {
+            throw new BadRequestException('ID de serviço inválido.');
+        }
+        const service = await this.prisma.service.findFirst({ 
+            where: { id: serviceId } 
+        });
         if (!service) {
             throw new BadRequestException('Serviço não encontrado.');
         }
@@ -46,7 +65,7 @@ export class ServiceService {
     }
 
     // Atualiza um serviço existente
-    async updateService(serviceId: string, data: CreateServiceDto) {
+    async updateService(serviceId: string, userId: string, data: UpdateServiceDto) {
         if (!validate(serviceId)) {
             throw new BadRequestException('ID de serviço inválido.');
         }
@@ -54,9 +73,16 @@ export class ServiceService {
         if (!service) {
             throw new BadRequestException('Serviço não encontrado.');
         }
+
+        if (service.userId !== userId)
+            throw new UnauthorizedException('Você não tem permissão para atualizar este serviço.');
         return this.prisma.service.update({
             where: { id: serviceId },
-            data,
+            data:{
+                name : data.name || service.name,
+                description : data.description || service.description,
+                price : data.price !== undefined ? data.price : service.price,
+            }
         });
     }
 
@@ -66,7 +92,7 @@ export class ServiceService {
     }
 
     // Deleta um serviço existente
-    async deleteService(serviceId: string) {
+    async deleteService(serviceId: string, userId: string) {
         if (!validate(serviceId)) {
             throw new BadRequestException('ID de serviço inválido.');
         }
@@ -74,6 +100,10 @@ export class ServiceService {
         if (!service) {
             throw new BadRequestException('Serviço não encontrado.');
         }
+
+        if (service.userId !== userId)
+            throw new UnauthorizedException('Você não tem permissão para deletar este serviço.');
+        
         await this.prisma.service.delete({ where: { id: serviceId } });
         return { message: 'Serviço deletado com sucesso.' };
     }
