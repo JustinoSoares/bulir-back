@@ -14,6 +14,8 @@ import { ReservationService } from './reservation/reservation.service';
 import { ReservationController } from './reservation/reservation.controller';
 import { ReservationModule } from './reservation/reservation.module';
 import { ServiceController } from './service/service.controller';
+import { SocketGateway } from './socket/socket.gateway';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -23,8 +25,9 @@ import { ServiceController } from './service/service.controller';
     AuthModule,
     ServiceModule,
     ReservationModule,
+    SocketModule,
   ],
   controllers: [AppController, AuthController, ReservationController, ServiceController],
-  providers: [AppService, PrismaService, AuthService, ServiceService,  ReservationService],
+  providers: [AppService, PrismaService, AuthService, ServiceService,  ReservationService, SocketGateway],
 })
 export class AppModule {}

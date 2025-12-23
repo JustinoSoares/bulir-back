@@ -1,4 +1,4 @@
-import {    IsString, IsDate, IsEnum } from "class-validator";
+import { IsString, IsDate, IsEnum, IsOptional } from "class-validator";
 import { reservation_status } from "@prisma/client";
 
 export class ReserDto {
@@ -7,13 +7,14 @@ export class ReserDto {
     })
     serviceId: string;
 
-    @IsDate({
+    @IsString({
         message: 'A data da reserva deve ser uma data válida.',
     })
-    date: Date;
+    date: string;
 
     @IsEnum(reservation_status, {
-        message: `O status da reserva deve ser 'PENDING', 'CONFIRMED', ou 'CANCELLED'.`,
+        message: `O status da reserva deve ser 'pending', 'confirmed', ou 'cancelled'.`,
     })
+    @IsOptional()
     status: reservation_status;
 }
