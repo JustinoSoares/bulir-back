@@ -103,6 +103,8 @@ export class ServiceService {
 
         if (service.userId !== userId)
             throw new UnauthorizedException('Você não tem permissão para deletar este serviço.');
+
+        await this.prisma.reservation.deleteMany({ where: { serviceId } });
         
         await this.prisma.service.delete({ where: { id: serviceId } });
         return { message: 'Serviço deletado com sucesso.' };

@@ -118,15 +118,18 @@ export class ReservationService {
                 },
             };
         }
-
-        return this.prisma.reservation.findMany({
-            skip,
-            take: newLimit,
+        const reservations = await this.prisma.reservation.findMany({
             where: whereClause,
             include: {
                 service: true,
             },
+            skip: skip,
+            take: newLimit,
+            orderBy: {
+                createdAt: 'desc',
+            },
         });
+        return reservations;
     }
 
     // pegar uma reserva específica
